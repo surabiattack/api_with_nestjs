@@ -1,39 +1,41 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import CreatePostDto from './dto/create.post.dto';
 import UpdatePostDto from './dto/update.post.dto';
-import { Post } from './post.interface';
+import Post from './post.entity';
 
 @Injectable()
 export class PostsService {
   private lastPostId = 0;
   private posts: Post[] = [];
 
-  replacePost(id: number, post: UpdatePostDto) {
-    const postIndex = this.posts.findIndex((post) => post.id === id);
-    if (postIndex > -1) {
-      this.posts[postIndex] = post;
-      return post;
+  constructor(
+    @InjectRepository(Post)
+    private postsRepository: Repository<Post>
+  ){}
+
+  async replacePost(id: number, post: UpdatePostDto) {
+    await this.postsRepository.update(id, post);
+    const updatedPost = await this.postsRepository.findOne(id);
+    if(updatedPost){
+      return updatedPost;
     }
     throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
   }
-  deletePost(id: number) {
-    const postIndex = this.posts.findIndex((post) => post.id === id);
-    if (postIndex > -1) {
-      this.posts.splice(postIndex, 1);
-    } else {
+  async deletePost(id: number) {
+    const deleteResponse = await this.postsRepository.delete(id);
+    if (!deleteResponse.affected) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
   }
-  createPost(post: CreatePostDto) {
-    const newPost = {
-      id: ++this.lastPostId,
-      ...post,
-    };
-    this.posts.push(newPost);
+  async createPost(post: CreatePostDto) {
+    const newPost = await this.postsRepository.create(post);
+    await this.postsRepository.save(newPost);
     return newPost;
   }
-  getPostById(id: number) {
-    const post = this.posts.find((post) => post.id === id);
+  async getPostById(id: number) {
+    const post = await this.postsRepository.findOne(id);
     if (post) {
       return post;
     }
@@ -41,6 +43,6 @@ export class PostsService {
     throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
   }
   getAllPosts() {
-    return this.posts;
+    return this.postsRepository.find();
   }
 }
