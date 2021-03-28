@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 class Post {
@@ -10,6 +10,9 @@ class Post {
 
     @Column()
     content: string;
+
+    @Column({ nullable: true })
+    category?: string;
 }
 
 export default Post;
