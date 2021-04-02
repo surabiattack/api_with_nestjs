@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { AuthenticationService } from './authentication/authentication.service';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { CategoriesModule } from './categories/categories.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
     imports: [
@@ -19,14 +20,17 @@ import { CategoriesModule } from './categories/categories.module';
                 POSTGRES_PASSWORD: Joi.string().required(),
                 POSTGRES_DB: Joi.string().required(),
                 PORT: Joi.number(),
-                JWT_SECRET: Joi.string().required(),
-                JWT_EXPIRATION_TIME: Joi.string().required(),
+                JWT_ACCESS_TOKEN_SECRET: Joi.string().required(),
+                JWT_ACCESS_TOKEN_EXPIRATION_TIME: Joi.string().required(),
+                JWT_REFRESH_TOKEN_SECRET: Joi.string().required(),
+                JWT_REFRESH_TOKEN_EXPIRATION_TIME: Joi.string().required(),
             }),
         }),
         DatabaseModule,
         UsersModule,
         AuthenticationModule,
         CategoriesModule,
+        SearchModule,
     ],
     controllers: [],
     providers: [],
